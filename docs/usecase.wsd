@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+
+actor Рибалка
+actor Сенсор
+actor Еколог
+actor "Служба погоди" as СлужбаПогоди
+
+rectangle "Система Рибальства" {
+  usecase "Перевірити карту глибин" as UC1
+  usecase "Перевірити точки кльову" as UC2
+  usecase "Фіксувати температуру води" as UC3
+  usecase "Фіксувати якість води" as UC4
+  usecase "Отримати звіт про умови водойми" as UC5
+  usecase "Зареєструвати вилов у журналі" as UC6
+  usecase "Планувати вихід на воду" as UC7
+  usecase "Отримати прогноз погоди" as UC8
+}
+
+Рибалка --> UC1
+Рибалка --> UC2
+Рибалка --> UC6
+Рибалка --> UC7
+Сенсор --> UC3
+Сенсор --> UC4
+Еколог --> UC5
+СлужбаПогоди --> UC8
+UC7 --> UC8
+UC6 .> UC3 : <<include>>
+UC6 .> UC4 : <<include>>
+UC5 .> UC3 : <<include>>
+UC5 .> UC4 : <<include>>
+UC7 .> UC1 : <<include>>
+UC7 .> UC2 : <<include>>
+
+@enduml

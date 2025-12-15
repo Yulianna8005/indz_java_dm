@@ -1,0 +1,105 @@
+@startuml Fishing System with Setter DI
+title Діаграма класів системи "Рибальство" (DI через setter-метод)
+
+' Головні класи
+class Application {
+  + {static} main(args: String[]): void
+}
+
+class Fisherman {
+  - name: String
+  - location: String
+  - catchLog: CatchLog
+  - catchLogService: CatchLogService
+  + Fisherman(name: String, catchLogService: CatchLogService)
+  + setCatchLogService(service: CatchLogService): void
+  + checkDepthMap(): void
+  + checkFishingSpots(): void
+  + logCatch(fish: String, weight: double): void
+  + startFishing(location: String): void
+}
+
+class Sensor {
+  - id: String
+  - location: String
+  + Sensor(id: String, location: String)
+  + measureTemperature(): double
+  + measureWaterQuality(): String
+  + getSensorData(): String
+}
+
+class Ecologist {
+  - name: String
+  + Ecologist(name: String)
+  + getWaterConditionReport(sensor: Sensor): void
+  + analyzeEnvironment(location: String): void
+}
+
+class CatchLog {
+  - entries: List<String>
+  + CatchLog()
+  + addEntry(fish: String, weight: double): void
+  + getEntries(): List<String>
+}
+
+class CatchLogService {
+  - connection: Connection
+  + CatchLogService(connection: Connection)
+  + saveCatch(fisherman: String, fish: String, weight: double): void
+}
+
+class YukoModule {
+  + configure(): void
+  + provideConnection(url: String): Connection
+  - createTableIfNotExists(connection: Connection): void
+}
+
+interface Connection <<interface>> {
+}
+
+' Зв'язки DI
+Fisherman --> CatchLogService : <<setter DI>>
+CatchLogService --> Connection : <<constructor DI>>
+
+' Композиція
+Fisherman *-- "1" CatchLog : створює
+
+' Залежності
+Application ..> YukoModule : використовує
+Application ..> Fisherman : створює через Guice
+YukoModule ..> Connection : надає
+YukoModule ..> CatchLogService : конфігурує
+
+' Звичайні залежності
+Ecologist --> Sensor : використовує
+
+note right of Fisherman
+  <b>Setter Dependency Injection</b>
+  CatchLogService впроваджується
+  через setter-метод
+  setCatchLogService()
+  позначений @Inject
+end note
+
+note right of CatchLogService
+  <b>Constructor Dependency Injection</b>
+  Connection впроваджується
+  через конструктор за допомогою @Inject
+  (залишається без змін)
+end note
+
+note bottom of YukoModule
+  <b>Google Guice Module</b>
+  Конфігурує залежності:
+  - Connection (Singleton)
+  - JDBC URL
+  - fisherman.name
+end note
+
+legend bottom
+  <b>Типи зв'язків:</b>
+  | Setter DI | Constructor DI | Композиція | Залежність |
+  | <<setter DI>> | <<constructor DI>> | *-- | ..> |
+end legend
+
+@enduml
