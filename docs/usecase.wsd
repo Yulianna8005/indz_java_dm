@@ -1,36 +1,58 @@
-@startuml
-left to right direction
+@startuml fishing_system_usecase
+! theme plain
+skinparam backgroundColor #FEFEFE
+skinparam classBackgroundColor #F0F0F0
 
-actor Рибалка
-actor Сенсор
-actor Еколог
-actor "Служба погоди" as СлужбаПогоди
+actor Fisherman as fisherman
+actor Ecologist as ecologist
+participant Application
+participant "Weather\nService"
 
-rectangle "Система Рибальства" {
-  usecase "Перевірити карту глибин" as UC1
-  usecase "Перевірити точки кльову" as UC2
-  usecase "Фіксувати температуру води" as UC3
-  usecase "Фіксувати якість води" as UC4
-  usecase "Отримати звіт про умови водойми" as UC5
-  usecase "Зареєструвати вилов у журналі" as UC6
-  usecase "Планувати вихід на воду" as UC7
-  usecase "Отримати прогноз погоди" as UC8
+rectangle "Fishing Management System" {
+  usecase UC1 as "Plan Fishing\nExpedition"
+  usecase UC2 as "Check Weather\nForecast"
+  usecase UC3 as "Check Depth\nMap"
+  usecase UC4 as "Check Fishing\nSpots"
+  usecase UC5 as "Start Fishing"
+  usecase UC6 as "Log Catch"
+  usecase UC7 as "End Fishing"
+  usecase UC8 as "View Catch\nSummary"
+  usecase UC9 as "Monitor Water\nConditions"
+  usecase UC10 as "Analyze\nEnvironment"
+  usecase UC11 as "Get Water\nCondition Report"
+  usecase UC12 as "Measure\nTemperature"
+  usecase UC13 as "Measure Water\nQuality"
+  usecase UC14 as "Save Catch\nto Database"
+  usecase UC15 as "Retrieve Catch\nData"
 }
 
-Рибалка --> UC1
-Рибалка --> UC2
-Рибалка --> UC6
-Рибалка --> UC7
-Сенсор --> UC3
-Сенсор --> UC4
-Еколог --> UC5
-СлужбаПогоди --> UC8
-UC7 --> UC8
-UC6 .> UC3 : <<include>>
-UC6 .> UC4 : <<include>>
-UC5 .> UC3 : <<include>>
-UC5 .> UC4 : <<include>>
-UC7 .> UC1 : <<include>>
-UC7 .> UC2 : <<include>>
+fisherman --> UC1
+fisherman --> UC3
+fisherman --> UC4
+fisherman --> UC5
+fisherman --> UC6
+fisherman --> UC7
+fisherman --> UC8
+
+Application --> UC2
+Application --> UC1
+Application --> UC9
+Application --> UC10
+
+ecologist --> UC10
+ecologist --> UC11
+
+UC2 --> "Weather\nService"
+UC1 .. > UC2 : includes
+UC1 .. > UC3 : includes
+UC1 ..> UC4 :  includes
+
+UC9 .. > UC12 : includes
+UC9 ..> UC13 : includes
+UC11 ..> UC12 : includes
+UC11 ..> UC13 : includes
+
+UC6 ..> UC14 : includes
+UC8 ..> UC15 : includes
 
 @enduml

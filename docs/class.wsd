@@ -1,105 +1,94 @@
-@startuml Fishing System with Setter DI
-title Діаграма класів системи "Рибальство" (DI через setter-метод)
-
-' Головні класи
-class Application {
-  + {static} main(args: String[]): void
-}
-
-class Fisherman {
-  - name: String
-  - location: String
-  - catchLog: CatchLog
-  - catchLogService: CatchLogService
-  + Fisherman(name: String, catchLogService: CatchLogService)
-  + setCatchLogService(service: CatchLogService): void
-  + checkDepthMap(): void
-  + checkFishingSpots(): void
-  + logCatch(fish: String, weight: double): void
-  + startFishing(location: String): void
-}
-
-class Sensor {
-  - id: String
-  - location: String
-  + Sensor(id: String, location: String)
-  + measureTemperature(): double
-  + measureWaterQuality(): String
-  + getSensorData(): String
-}
-
-class Ecologist {
-  - name: String
-  + Ecologist(name: String)
-  + getWaterConditionReport(sensor: Sensor): void
-  + analyzeEnvironment(location: String): void
-}
-
-class CatchLog {
-  - entries: List<String>
-  + CatchLog()
-  + addEntry(fish: String, weight: double): void
-  + getEntries(): List<String>
-}
-
-class CatchLogService {
-  - connection: Connection
-  + CatchLogService(connection: Connection)
-  + saveCatch(fisherman: String, fish: String, weight: double): void
-}
-
-class YukoModule {
-  + configure(): void
-  + provideConnection(url: String): Connection
-  - createTableIfNotExists(connection: Connection): void
-}
-
-interface Connection <<interface>> {
-}
-
-' Зв'язки DI
-Fisherman --> CatchLogService : <<setter DI>>
-CatchLogService --> Connection : <<constructor DI>>
-
-' Композиція
-Fisherman *-- "1" CatchLog : створює
-
-' Залежності
-Application ..> YukoModule : використовує
-Application ..> Fisherman : створює через Guice
-YukoModule ..> Connection : надає
-YukoModule ..> CatchLogService : конфігурує
-
-' Звичайні залежності
-Ecologist --> Sensor : використовує
-
-note right of Fisherman
-  <b>Setter Dependency Injection</b>
-  CatchLogService впроваджується
-  через setter-метод
-  setCatchLogService()
-  позначений @Inject
-end note
-
-note right of CatchLogService
-  <b>Constructor Dependency Injection</b>
-  Connection впроваджується
-  через конструктор за допомогою @Inject
-  (залишається без змін)
-end note
-
-note bottom of YukoModule
-  <b>Google Guice Module</b>
-  Конфігурує залежності:
-  - Connection (Singleton)
-  - JDBC URL
-  - fisherman.name
-end note
-
-legend bottom
-  <b>Типи зв'язків:</b>
-  | Setter DI | Constructor DI | Композиція | Залежність |
-  | <<setter DI>> | <<constructor DI>> | *-- | ..> |
-end legend
-
-@enduml
+classDiagram
+    class Application {
+        +print_header(title:  str)
+        +main()
+    }
+    
+    class Fisherman {
+        -name: str
+        -location:  Optional[str]
+        -is_fishing: bool
+        -catch_log: CatchLog
+        -_catch_log_service: CatchLogService
+        +__init__(name: str, catch_log_service: CatchLogService)
+        +set_catch_log_service(service: CatchLogService)
+        +check_depth_map()
+        +check_fishing_spots()
+        +start_fishing(location: str)
+        +log_catch(fish_species: str, weight:  float)
+        +end_fishing()
+        +get_catch_summary() dict
+        +display_info()
+        +__str__() str
+    }
+    
+    class CatchLog {
+        -entries: List[dict]
+        +__init__()
+        +add_entry(fish_species: str, weight: float)
+        +get_entries() List[dict]
+        +get_total_weight() float
+        +get_catch_count() int
+        +clear()
+        +display_summary()
+    }
+    
+    class CatchLogService {
+        -db_path: str
+        +__init__(db_path: str)
+        -_initialize_database()
+        +save_catch(fisherman_name: str, fish_species:  str, weight: float)
+        +get_all_catches(fisherman_name: str) List[dict]
+        +get_catch_summary(fisherman_name: str) dict
+    }
+    
+    class FishingTrip {
+        -location: str
+        -fisherman_name: str
+        -depth_map: str
+        -fishing_spots: List[str]
+        -start_time: datetime
+        -end_time: Optional[datetime]
+        -is_active: bool
+        +__init__(location: str, fisherman_name: str, depth_map: str, fishing_spots: List[str])
+        +start()
+        +end()
+        +get_fishing_plan() str
+        +__str__() str
+    }
+    
+    class Sensor {
+        -sensor_id: str
+        -location: str
+        -last_temperature: Optional[float]
+        -last_quality: Optional[str]
+        +__init__(sensor_id: str, location: str)
+        +measure_temperature() float
+        +measure_water_quality() str
+        +get_sensor_data() dict
+        +__str__() str
+    }
+    
+    class Ecologist {
+        -name: str
+        +__init__(name: str)
+        +get_water_condition_report(sensor:  Sensor)
+        +analyze_environment(location: str)
+        -_analyze_conditions(temperature: float, quality: str)
+    }
+    
+    class WeatherService {
+        +get_weather_forecast(location: str)$ dict
+        +is_suitable_for_fishing(forecast: dict)$ bool
+    }
+    
+    Fisherman --> CatchLog :  uses
+    Fisherman --> CatchLogService :  uses
+    Ecologist --> Sensor : analyzes data from
+    Application --> Fisherman : creates
+    Application --> FishingTrip : creates
+    Application --> Sensor : creates
+    Application --> Ecologist :  creates
+    Application --> CatchLogService : creates
+    Application --> WeatherService : uses
+    FishingTrip --> Fisherman : references

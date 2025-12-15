@@ -1,18 +1,38 @@
-@startuml Minimal Fisher State Diagram
-title Діаграма станів: Рибалка
-
-[*] -> Неактивний : конструктор
-Неактивний -> Планування : планувати()
-Планування -> Активний : розпочати()
-Активний -> Завершення : завершити()
-Завершення -> Неактивний : {final} звіт()
-
-state Активний {
-  [*] -> Переміщення
-  Переміщення -> Ловля : прибути()
-  Ловля -> Реєстрація : виловити()
-  Реєстрація -> Ловля : продовжити()
-  Ловля -> [*] : завершити()
-}
-
-@enduml
+stateDiagram-v2
+    [*] --> Initialization
+    
+    Initialization --> PlanningPhase:  All components initialized
+    
+    PlanningPhase --> WeatherCheck: Start planning
+    
+    WeatherCheck --> CheckingResources: Weather suitable
+    WeatherCheck --> Postponed:  Weather not suitable
+    
+    CheckingResources --> CheckDepthMap: Begin resource check
+    CheckDepthMap --> CheckFishingSpots:  Depth map verified
+    CheckFishingSpots --> EnvironmentalAnalysis:  Fishing spots identified
+    
+    EnvironmentalAnalysis --> EcologicalAssessment:  Analyze environment
+    EcologicalAssessment --> ExpeditionReady: Environment analyzed
+    
+    ExpeditionReady --> FishingPhase: Start expedition
+    
+    FishingPhase --> FishermenFishing: Fisherman begins fishing
+    
+    FishermenFishing --> MonitoringConditions: Monitor water conditions
+    MonitoringConditions --> LoggingCatches:  Conditions monitored
+    
+    LoggingCatches --> LoggingCatches: Log each catch to DB
+    LoggingCatches --> CatchingStopped: All catches logged
+    
+    CatchingStopped --> CompletionPhase: Fishing completed
+    
+    CompletionPhase --> FinalEcologicalAssessment: Assess final conditions
+    FinalEcologicalAssessment --> GeneratingSummary: Conditions assessed
+    
+    GeneratingSummary --> ViewingSummary: Generate summary
+    ViewingSummary --> SystemComplete: Summary displayed
+    
+    SystemComplete --> [*]
+    
+    Postponed --> [*]
